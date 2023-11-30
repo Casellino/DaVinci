@@ -15,11 +15,24 @@
 
 clear all, close all, clc
 
-%% Caricamento darti modello
+%% Caricamento dati modello
+load('DaVinci_mod/DaVinci_mod.mat')
 
 %% Dati robot
 % Modello del robot
-
+% Parametri DH
+a1 = dati.ai(2);
+a2 = dati.ai(3);
+a3 = dati.ai(4);
+d2 = dati.di(2);
+d3 = dati.di(3);
+d4 = dati.di(4);
+alfa4 = dati.alphai(5);
+alfa5 = dati.alphai(6);
+a6 = dati.ai(5);
+a7 = dati.ai(6);
+a8 = dati.ai(7);
+alfa8 = dati.alphai(9);
 % Parametri DH
 
 %% Cinematica Diretta di Posizione
@@ -28,6 +41,7 @@ clear all, close all, clc
 %% Posizionamento primi 4 giunti
 
 %% Definizione punto target
+
 %% Cinematica Inversa di Posizione
 
 
