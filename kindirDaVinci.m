@@ -30,4 +30,10 @@ m.Ttw = m.T9w*p.Ttn;
 % punti per linee modello
 P1w = m.T1w*p.P1;
 P2w = m.T2w*p.P2;
-m.Pw = [P1w P2w m.T3w(:,4)];
+P3w = m.T3w*p.P3;
+P4w = m.T4w*p.P4;
+P5w = m.T5w*p.P5;
+P6w = m.T6w*p.P6;
+P7w = m.T7w*p.P7;
+P8w = m.T8w*p.P8;
+m.Pw = [P1w P2w P3w P4w P5w P6w P7w P8w m.T9w(:,4)];

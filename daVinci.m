@@ -41,15 +41,18 @@ dati.T0w = transE(100,200,50,20,0,0);
 dati.Ttn = transP(0,0,100); % da controllare la posizione del tool rispetto alla flangia nel DaVinci
 
 % punti per linee modello
-dati.P1 = [[0;0;-dati.di(1);1] [0;0;0;1] [0;0;0;1]]; % [[origine della terna 0 vista da 1] [terna 1 vista da 1] [estremo asse x terna 1]]
-dati.P2 = [[0;0;0;1] [0;0;0;1] [0;0;0;1]];
-dati.P3 = [[0;0;0;1] [0;0;0;1] [0;0;0;1]];
-dati.P4 = [[0;0;0;1] [0;0;0;1] [0;0;0;1]];
-dati.P5 = [[0;0;0;1] [0;0;0;1] [0;0;0;1]];
-dati.P6 = [[0;0;0;1] [0;0;0;1] [0;0;0;1]];
-dati.P7 = [[0;0;0;1] [0;0;0;1] [0;0;0;1]];
-dati.P8 = [[0;0;0;1] [0;0;0;1] [0;0;0;1]];
-dati.P9 = [[0;0;0;1] [0;0;0;1] [0;0;0;1]];
+% [[origine della terna 0 vista da 1] [terna 1 vista da 1] [estremo asse x terna 1]]
+dati.P1 = [[0;0;-dati.di(1);1] [0;0;0;1] [dati.ai(1);0;0;1]]; 
+dati.P2 = [[0;0;-dati.di(2);1] [0;0;0;1] [dati.ai(2);0;0;1]];
+dati.P3 = [[0;0;-dati.di(3);1] [0;0;0;1] [dati.ai(3);0;0;1]];
+dati.P4 = [[0;0;-dati.di(4);1] [0;0;0;1] [dati.ai(4);0;0;1]];
+dati.P5 = [[0;0;-dati.di(5);1] [0;0;0;1] [dati.ai(5);0;0;1]];
+dati.P6 = [[0;0;-dati.di(6);1] [0;0;0;1] [dati.ai(6);0;0;1]];
+dati.P7 = [[0;0;-dati.di(7);1] [0;0;0;1] [dati.ai(7);0;0;1]];
+dati.P8 = [[0;0;-dati.di(8);1] [0;0;0;1] [dati.ai(8);0;0;1]];
+dati.P9 = [[0;0;0;1] [dati.ai(9);0;0;1]];
+
+
 
 
 
