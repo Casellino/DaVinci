@@ -13,12 +13,10 @@
 % - movimento robot
 % - aggiunta lettino e ridefinizione target
 
-clear, close all, clc
+clear, clc, close all
 %% Caricamento dati modello
-<<<<<<< HEAD
-=======
+
 load('DaVinci_mod/DaVinci_mod.mat')
->>>>>>> refs/remotes/origin/main
 
 %% Dati robot
 % Modello del robot
@@ -35,9 +33,9 @@ a6 = dati.ai(5);
 a7 = dati.ai(6);
 a8 = dati.ai(7);
 alfa8 = dati.alphai(9);
-% Parametri DH
 
 %% Cinematica Diretta di Posizione
+q = [0 0 0 0 0 0 0 0 0]; % 9 coordinate libere (q1, ..., q8)
 
 
 %% Posizionamento primi 4 giunti
