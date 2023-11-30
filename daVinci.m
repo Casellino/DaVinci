@@ -13,9 +13,9 @@
 % - movimento robot
 % - aggiunta lettino e ridefinizione target
 
-clear all, close all, clc
+clear, clc, close all
 
-%% Caricamento darti modello
+%% Caricamento dati modello
 
 %% Dati robot
 % Modello del robot
