@@ -20,6 +20,7 @@ load('DaVinci_mod/DaVinci_mod.mat')
 
 %% Dati robot
 % Modello del robot
+dati.name = 'DaVinci';
 % Parametri DH
 a1 = dati.ai(2);
 a2 = dati.ai(3);
@@ -34,10 +35,71 @@ a7 = dati.ai(6);
 a8 = dati.ai(7);
 alfa8 = dati.alphai(9);
 
+% posizione base robot rispetto a world (disegno)
+dati.T0w = transE(100,200,50,20,0,0);
+% posizione/orientazione tool rispetto flangia robot
+dati.Ttn = transP(0,0,100); % da controllare la posizione del tool rispetto alla flangia nel DaVinci
+
+% punti per linee modello
+dati.P1 = [[0;0;-dati.di(1);1] [0;0;0;1] [0;0;0;1]]; % [[origine della terna 0 vista da 1] [terna 1 vista da 1] [estremo asse x terna 1]]
+dati.P2 = [[0;0;0;1] [0;0;0;1] [0;0;0;1]];
+dati.P3 = [[0;0;0;1] [0;0;0;1] [0;0;0;1]];
+dati.P4 = [[0;0;0;1] [0;0;0;1] [0;0;0;1]];
+dati.P5 = [[0;0;0;1] [0;0;0;1] [0;0;0;1]];
+dati.P6 = [[0;0;0;1] [0;0;0;1] [0;0;0;1]];
+dati.P7 = [[0;0;0;1] [0;0;0;1] [0;0;0;1]];
+dati.P8 = [[0;0;0;1] [0;0;0;1] [0;0;0;1]];
+dati.P9 = [[0;0;0;1] [0;0;0;1] [0;0;0;1]];
+
+
+
 %% Cinematica Diretta di Posizione
-q = [0 0 0 0 0 0 0 0 0]; % 9 coordinate libere (q1, ..., q8)
+q = [10 10 10 10 10 10 10 10 10]; % 9 coordinate libere (q1, ..., q8)
 
+mat = kindirDaVinci(q,dati); % da controllare meglio il valore di dati.di(9) se ci sono errori
 
+%% disegno
+
+% creazione figura
+hf = figure(1);
+clf
+hf.MenuBar = 'none';
+hf.Name = sprintf('MODELLO 3D robot %s [%dmm]',dati.name,dati.ai(1)+dati.ai(2));
+hf.NumberTitle = 'off';
+hf.Color = 'w';
+
+% assi
+axis equal
+view(30,20)
+grid on
+rotate3d on
+xlabel 'x[mm]'
+ylabel 'y[mm]'
+zlabel 'z[mm]'
+%xlim(1000*[-0.2 0.8])
+%ylim(1000*[-0.2 0.8])
+%zlim(1000*[-0.2 1])
+
+% disegno
+hold on
+
+% terne di riferimento
+L = 120; %[mm]
+disframe(eye(4),2*L,'o') % world
+disframe(dati.T0w,L,'s') % base robot
+disframe(mat.T1w,L) % terna 1
+disframe(mat.T2w,L) % terna 2
+disframe(mat.T3w,L) % terna 3
+disframe(mat.T4w,L) % terna 4
+disframe(mat.T5w,L) % terna 5
+disframe(mat.T6w,L) % terna 6
+disframe(mat.T7w,L) % terna 7
+disframe(mat.T8w,L) % terna 8
+disframe(mat.T9w,L) % terna 9
+disframe(mat.Ttw,L,'.') % terna tool
+
+% linee modello
+line(mat.Pw(1,:),mat.Pw(2,:),mat.Pw(3,:),'linestyle','--','color','b','linewidth',1);
 %% Posizionamento primi 4 giunti
 
 %% Definizione punto target
