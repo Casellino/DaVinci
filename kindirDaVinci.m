@@ -1,4 +1,4 @@
-function m = kindirDaVinci(q,p) 
+function m = kindirDaVinci(q,p)
 % q: coordinate libere, p: parametri DH
 % cinematica diretta DaVinci
 
@@ -12,6 +12,7 @@ m.T65 = transDH(p.alphai(6), p.ai(6), q(6), 0);
 m.T76 = transDH(p.alphai(7), p.ai(7), q(7), 0);
 m.T87 = transDH(p.alphai(8), p.ai(8), q(8), 0);
 m.T98 = transDH(p.alphai(9), p.ai(9), 0   , q(9)-p.Ltool+p.di(9));
+m.TRCM4 = transDH(p.alphai(5), p.ai(5), q(5), p.di(5)+p.ai(7)); % dati terna RCM rispetto a 4
 
 % trasformazioni assolute [Tiw]
 m.T1w = p.T0w*m.T10;
@@ -23,6 +24,7 @@ m.T6w = m.T5w*m.T65;
 m.T7w = m.T6w*m.T76;
 m.T8w = m.T7w*m.T87;
 m.T9w = m.T8w*m.T98;
+m.TRCMw = m.T4w*m.TRCM4; % RCM rispetto a world
 
 % terna tool rispetto a world
 m.Ttw = m.T9w*p.Ttn;
@@ -36,6 +38,6 @@ P7w = m.T7w*p.P7;
 P8w = m.T8w*p.P8;
 P9w = m.T9w*p.P9;
 Ptw = m.Ttw*p.Pt;
-% P95 = m.T5w*p.P9;
-
+PRCMw = m.TRCMw*p.PRCM;
 m.Pw = [P1w P2w P3w P5w P7w P8w P9w Ptw];
+m.P5RCM8w = [P5w PRCMw P8w]; % origini di terne 5, RCM e 8 per costruire il parallelogramma
