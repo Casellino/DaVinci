@@ -28,7 +28,16 @@ dati.T0w = transE(0,0,0,0,0,0);
 dati.Ttn = transP(0,0,dati.Ltool); % da controllare la posizione del tool rispetto alla flangia nel DaVinci
 
 %% Cinematica Diretta di Posizione
-q = [50 0 0 0 0 0 0 0 900]; % 9 coordinate libere (q1, ..., q8)
+q = [10 10 -50 180 300 0 0 0 800]; % 9 coordinate libere (q1, ..., q8)
+% q(6) = atan2(0,0) + asind(dati.ai(9)/dati.ai(7));
+% q(7) = 3*90/2 - q(6);
+% q(8) = q(6) - asind(dati.ai(9)/dati.ai(7));
+% q(9) = sqrt(dati.ai(7)^2-dati.ai(9)^2) - dati.Ltool;
+
+% punti messi per far tornare un parallelogramma
+q(6) = 50;
+q(7)=225; 
+q(8)=25;
 
 % punti per linee modello
 % punti 1, 2, 3 descritti rispetto alla terna 1
@@ -81,7 +90,7 @@ zlabel 'z[mm]'
 hold on
 
 % terne di riferimento
-L = 70; %[mm]
+L = 100; %[mm]
 disframe(eye(4),2*L,'o') % world
 disframe(dati.T0w,L,'s') % base robot
 disframe(mat.T1w,L) % terna 1
@@ -96,9 +105,10 @@ disframe(mat.T9w,L) % terna 9
 disframe(mat.Ttw,L,'.') % terna tool
 disframe(mat.TRCMw,L,'*') % terna RCM
 
-%% linee modello
+% linee modello
 line(mat.Pw(1,:),mat.Pw(2,:),mat.Pw(3,:),'linestyle','--','color','b','linewidth',1);
 line(mat.P5RCM8w(1,:),mat.P5RCM8w(2,:),mat.P5RCM8w(3,:),'linestyle','--','color','b','linewidth',1);
+line(mat.P9RCMw(1,:),mat.P9RCMw(2,:),mat.P9RCMw(3,:),'linestyle','--','color','b','linewidth',1);
 
 %% MODELLO 3D
 % base robot

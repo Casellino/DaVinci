@@ -9,10 +9,12 @@ m.T32 = transDH(p.alphai(3), p.ai(3), q(3), p.di(3));
 m.T43 = transDH(p.alphai(4), p.ai(4), q(4), p.di(4));
 m.T54 = transDH(p.alphai(5), p.ai(5), q(5), p.di(5));
 m.T65 = transDH(p.alphai(6), p.ai(6), q(6), 0);
-m.T76 = transDH(p.alphai(7), p.ai(7), q(7), 0);
-m.T87 = transDH(p.alphai(8), p.ai(8), q(8), 0);
-m.T98 = transDH(p.alphai(9), p.ai(9), 0   , q(9)-p.Ltool+p.di(9));
-m.TRCM4 = transDH(p.alphai(5), p.ai(5), q(5), p.di(5)+p.ai(7)); % dati terna RCM rispetto a 4
+m.T76 = transDH(p.alphai(7), p.ai(7), q(7), 0); % p.ai(7)=a6 negli appunti
+m.T87 = transDH(p.alphai(8), p.ai(8), q(8), 0); % p.ai(8)=a7 negli appunti
+m.T98 = transDH(p.alphai(9), p.ai(9), 0   , q(9)-p.Ltool+p.di(9)); % p.ai(9)=a8 negli appunti
+
+m.TRCM4 = transDH(p.alphai(5), p.ai(5), q(5), p.di(5)+p.ai(8)); % dati terna RCM rispetto a 4
+m.T40 = m.T10*m.T21*m.T32*m.T43;
 
 % trasformazioni assolute [Tiw]
 m.T1w = p.T0w*m.T10;
@@ -24,7 +26,7 @@ m.T6w = m.T5w*m.T65;
 m.T7w = m.T6w*m.T76;
 m.T8w = m.T7w*m.T87;
 m.T9w = m.T8w*m.T98;
-m.TRCMw = m.T4w*m.TRCM4; % RCM rispetto a world
+m.TRCMw = p.T0w*m.T40*transX(p.alphai(5))*transP(0,0,p.di(5)+p.ai(8))*transX(90); % RCM rispetto a world
 
 % terna tool rispetto a world
 m.Ttw = m.T9w*p.Ttn;
@@ -39,5 +41,6 @@ P8w = m.T8w*p.P8;
 P9w = m.T9w*p.P9;
 Ptw = m.Ttw*p.Pt;
 PRCMw = m.TRCMw*p.PRCM;
-m.Pw = [P1w P2w P3w P5w P7w P8w P9w Ptw];
+m.Pw = [P1w P2w P3w P5w P7w P8w];
 m.P5RCM8w = [P5w PRCMw P8w]; % origini di terne 5, RCM e 8 per costruire il parallelogramma
+m.P9RCMw = [P9w PRCMw Ptw];
