@@ -17,8 +17,9 @@ z = A(3,4);
 a6 = p.ai(7);
 % a7 = p.ai(8);
 a8 = p.ai(9);
+
 % inclinazione del piano di lavoro del braccio rispetto a al piano verticale z4y4
-q5 = atan2(-z,x) + 180; % configurazione spalla
+q5 = atan2(-z,x) + 180;
 q6 = atan2(y,z/sind(q5)) + asind(a8/a6);
 q7 = 3 * 180 / 2 - q6;
 q8 = atan2(y,z/sind(q5));
