@@ -15,22 +15,25 @@
 
 clear, clc, close all
 %% Caricamento dati modello
+load('roboCouch.mat');
+base_couch = base;
+dati_couch = dati;
+link_couch = link;
 
 load('DaVinci_mod/DaVinci_mod.mat')
-
 %% Dati robot
 % Modello del robot
 dati.name = 'DaVinci';
 
 % posizione base robot rispetto a world (disegno)
-dati.T0w = transE(550,700,0,0,0,-30);
+dati.T0w = transE(550,700,0,0,0,-90);
 % posizione/orientazione tool rispetto flangia robot
-dati.Ttn = transP(0,0,dati.Ltool+dati.di(9));
+dati.Ttn = transP(0,0,dati.Ltool);
 
-%% posizionamento braccio (primi 4 giunti)
-q = [40 10 -50 10];
+%% Posizionamento braccio (primi 4 giunti)
+q = [600 10 -50 -10];
 
-%% Punti per linee modello
+% Punti per linee modello
 % punti 1, 2, 3 descritti rispetto alla terna 1
 dati.P1 = [[0;0;-dati.di(1)-q(1);1] [0;0;0;1] [dati.ai(1);0;0;1]]; 
 % [[origine della terna 0 vista da 1] [origine terna 1 vista da 1] [estremo asse x terna 1]]
@@ -55,16 +58,15 @@ dati.Pt = [0;0;0;1];
 
 %% Cinematica inversa di posizione
 % terna target per il tool
-Ttw = transE(1500,1000,600,0,0,0);
+Ttw = transE(500,-600,400,0,0,0);
 % cinematica inversa di posizione
-theta = [40 10 -50 10]; 
+theta = q;
 % corrispondono a q1, q2, q3 e q4 che rappresentano i giunti passivi
 q = invkinDaVinci(theta,Ttw,dati);
 q = [theta q];
 mat = kindirDaVinci(q,dati);
 
 %% disegno
-
 % creazione figura
 hf = figure(1);
 clf
@@ -96,18 +98,23 @@ disframe(mat.T6w,L) % terna 6
 disframe(mat.T7w,L) % terna 7
 disframe(mat.T8w,L) % terna 8
 disframe(mat.T9w,L) % terna 9
-disframe(mat.Ttw,L*1.5,'.') % terna tool
+disframe(mat.Ttw,L,'.') % terna tool
 disframe(mat.TRCMw,L) % terna RCM
+plot3(mat.Ttw(1,4),mat.Ttw(2,4),mat.Ttw(3,4),'o') % TARGET
 
 % linee modello
 line(mat.Pw(1,:),mat.Pw(2,:),mat.Pw(3,:),'linestyle','--','color','b','linewidth',1);
 line(mat.P5RCM8w(1,:),mat.P5RCM8w(2,:),mat.P5RCM8w(3,:),'linestyle','--','color','b','linewidth',1);
-line(mat.P9tw(1,:),mat.P9tw(2,:),mat.P9tw(3,:),'linestyle','--','color','white','linewidth',1);
+line(mat.P9tw(1,:),mat.P9tw(2,:),mat.P9tw(3,:),'linestyle','--','color','black','linewidth',1);
 
 %% MODELLO 3D
 % base robot
 Pbw = dati.T0w*base.P;
 patch('faces',base.faces,'vertices',Pbw(1:3,:)','facecolor',0.95*[0 1 1],'edgecolor','none','facealpha',0.6);
+
+% lettino 
+PLw = dati.T0w*transE(1000,700,600,180,0,0)*link_couch(6).P;
+patch('faces',link_couch(6).faces,'vertices',PLw(1:3,:)','facecolor',0.1*[1 1 1],'edgecolor','none','facealpha',0.6);
 
 % membri passivi
 % link1
@@ -139,6 +146,6 @@ patch('faces',link(8).faces,'vertices',P8w(1:3,:)','facecolor',0.95*[1 1 1],'edg
 
 % tool
 P9w = mat.T9w*link(9).P;
-patch('faces',link(9).faces,'vertices',P9w(1:3,:)','facecolor',0.1*[1 1 1],'edgecolor','none','facealpha',0.6);
+patch('faces',link(9).faces,'vertices',P9w(1:3,:)','facecolor',0.99*[1 1 1],'edgecolor','none','facealpha',0.6);
 
 light
