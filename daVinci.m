@@ -26,7 +26,7 @@ load('DaVinci_mod/DaVinci_mod.mat')
 dati.name = 'DaVinci';
 
 % posizione base robot rispetto a world (disegno)
-dati.T0w = transE(550,700,0,0,0,-90);
+dati.T0w = transE(0,0,0,0,0,0);
 % posizione/orientazione tool rispetto flangia robot
 dati.Ttn = transP(0,0,dati.Ltool);
 
@@ -57,14 +57,14 @@ dati.P9 = [0;0;0;1];
 dati.Pt = [0;0;0;1];
 
 %% Cinematica inversa di posizione
-% terna tool nella posizione iniziale
-Ttw1 = transE(800,-600,1000,0,0,0);
-% terna tool nella posizione finale
-Ttw2 = transE(600,-800,300,0,180,180);
+% Punto target iniziale
+P1w = [1200 300 600 1]';
+% Punto target finale
+P2w = [1100 0 500 1]';
 theta = q; % corrispondono a q1, q2, q3 e q4 che rappresentano i giunti passivi
 
-q1 = invkinDaVinci(theta,Ttw1,dati);
-q2 = invkinDaVinci(theta,Ttw2,dati);
+q1 = invkinDaVinci(theta,P1w,dati);
+q2 = invkinDaVinci(theta,P2w,dati);
 
 q1 = [theta q1];
 q2 = [theta q2];
@@ -163,6 +163,11 @@ rotate3d on
 xlabel 'x[mm]'
 ylabel 'y[mm]'
 zlabel 'z[mm]'
+
+xlim([-1000 2300])
+ylim([-1500 1700])
+zlim([-100 2300])
+
 m = kindirDaVinci(Q(end,:),dati); % terna finale 
 %% simulazione
 
@@ -216,7 +221,7 @@ for nf = 1:N
     patch('faces',base.faces,'vertices',Pbw(1:3,:)','facecolor',0.95*[0 1 1],'edgecolor','none','facealpha',0.6);
 
     % lettino 
-    PLw = dati.T0w*transE(1000,700,600,180,0,0)*link_couch(6).P;
+    PLw = dati.T0w*transE(900,500,650,180,0,0)*link_couch(6).P;
     patch('faces',link_couch(6).faces,'vertices',PLw(1:3,:)','facecolor',0.1*[1 1 1],'edgecolor','none','facealpha',0.6);
 
     % membri passivi
