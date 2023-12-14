@@ -15,26 +15,27 @@
 
 clear, clc, close all
 %% Caricamento dati modello
+% carico dati roboCouch per lettino
 load('roboCouch.mat');
 base_couch = base;
 dati_couch = dati;
 link_couch = link;
 
+% carico dati DaVinci
 load('DaVinci_mod/DaVinci_mod.mat')
+
 %% Dati robot
 % Modello del robot
 dati.name = 'DaVinci';
-
-% posizione base robot rispetto a world
+% posizione/orientazione base robot rispetto a world
 dati.T0w = transE(550,700,0,0,0,-90);
-% posizione lettino rispetto a world
-dati.TLw = dati.T0w*transE(900,500,650,180,0,0);
+% posizione/orientazione lettino rispetto a world
+dati.TLw = dati.T0w*transE(900,500,675,180,0,0);
 % posizione/orientazione tool rispetto flangia robot
 dati.Ttn = transP(0,0,dati.Ltool);
 
-
 %% Posizionamento braccio (primi 4 giunti)
-q = [600 50 -30 230];
+q = [600 60 -30 250]; % q1, q2, q3 e q4 rappresentano i giunti passivi
 
 % Punti per linee modello
 % [[origine della terna 0 vista da 1] [origine terna 1 vista da 1] [estremo asse x terna 1]]
@@ -57,26 +58,29 @@ dati.P9 = [0;0;0;1];
 dati.Pt = [0;0;0;1];
 
 %% Cinematica inversa di posizione
+% trasformazioni relative [Ti,i-1]
+T10 = transDH(dati.alphai(1), dati.ai(1), 0   , q(1)+dati.di(1));
+T21 = transDH(dati.alphai(2), dati.ai(2), q(2), dati.di(2));
+T32 = transDH(dati.alphai(3), dati.ai(3), q(3), dati.di(3));
+T43 = transDH(dati.alphai(4), dati.ai(4), q(4), dati.di(4));
+T40 = T10*T21*T32*T43;
+
 % Punto target iniziale rispetto a world 
-P1t = [2200 400 465 1]';
-P1tw = [P1t(1)+dati.T0w(1,4) P1t(2)+dati.T0w(2,4) P1t(3)+dati.T0w(3,4) 1]'; % rispetto a 0
-% Punto target finale
-P2t = [0 0 0 1]';
-P2tw = [P2t(1)+dati.T0w(1,4) P2t(2)+dati.T0w(2,4) P2t(3)+dati.T0w(3,4) 1]'; % rispetto a 0
+P1tw = [1100 -500 1200 1]' ; 
+% Punto target finale rispetto a world
+P2tw = [900 -100 800 1]';
 
-theta = q; % corrispondono a q1, q2, q3 e q4 che rappresentano i giunti passivi
+q1 = invkinDaVinci(T40,P1tw,dati);
+q2 = invkinDaVinci(T40,P2tw,dati);
 
-q1 = invkinDaVinci(theta,P1tw,dati);
-q2 = invkinDaVinci(theta,P2tw,dati);
-
-q1 = [theta q1];
-q2 = [theta q2];
+q1 = [q q1];
+q2 = [q q2];
 dq = q2 - q1;
 
 %% pianificazione ai giunti P-P
 
-% dati della legge
-T = 1; % [s]
+% dati della legge oraria a polinomio cubico
+T = 5; % [s]
 dt = 0.1; % [s]
 t = 0:dt:T;
 N = length(t);
@@ -88,7 +92,7 @@ sigmap = 6*tau - 6*tau.^2;
 sigmapp = 6 - 12*tau;
 
 % grafico sigma(tau) e derivate
-figure(2)
+figure
 
 subplot(3,1,1)
 plot(tau,sigma)
@@ -125,7 +129,7 @@ Qp = sigmap'*dq/T;
 Qpp = sigmapp'*dq/(T^2);
 
 % grafico qi(t) e derivate
-figure(3)
+figure
 clf
 
 subplot(3,1,1)
@@ -149,27 +153,22 @@ ylabel 'qpp_i [°/s^2,mm/s^2]'
 
 %% disegno
 % creazione figura
-hf = figure(1);
+hf = figure;
 clf
 hf.MenuBar = 'none';
-hf.Name = sprintf('Linee Modello %s [%dmm]',dati.name,dati.ai(1)+dati.ai(2));
+hf.Name = sprintf('Movimento %s',dati.name);
 hf.NumberTitle = 'off';
 hf.Color = 'w';
 
 % assi
 axis equal
-view(-30,10)
+view(-45,15)
 grid on
 rotate3d on
 xlabel 'x[mm]'
 ylabel 'y[mm]'
 zlabel 'z[mm]'
 
-% xlim([-1000 2300])
-% ylim([-1500 1700])
-% zlim([-100 2300])
-
-m = kindirDaVinci(Q(end,:),dati); % terna finale 
 %% simulazione
 
 % inizializzazione oggetto video
@@ -187,7 +186,6 @@ for nf = 1:N
     % calcolo matrici di trasformazione
     q = Q(nf,:);
     mat = kindirDaVinci(q,dati);
-
     % disegno
     cla
     hold on 
@@ -207,7 +205,6 @@ for nf = 1:N
     disframe(mat.Ttw,L,'.') % terna tool
     disframe(mat.TRCMw,L) % terna RCM
 
-
     % linee modello
     line(mat.Pw(1,:),mat.Pw(2,:),mat.Pw(3,:),'linestyle','--','color','b','linewidth',1);
     line(mat.P5RCM8w(1,:),mat.P5RCM8w(2,:),mat.P5RCM8w(3,:),'linestyle','--','color','b','linewidth',1);
@@ -217,7 +214,6 @@ for nf = 1:N
     % base robot
     Pbw = dati.T0w*base.P;
     patch('faces',base.faces,'vertices',Pbw(1:3,:)','facecolor',0.95*[0 1 1],'edgecolor','none','facealpha',0.6);
-
     % lettino 
     PLw = dati.TLw*link_couch(6).P;
     patch('faces',link_couch(6).faces,'vertices',PLw(1:3,:)','facecolor',0.1*[1 1 1],'edgecolor','none','facealpha',0.6);
@@ -249,19 +245,15 @@ for nf = 1:N
     % link8
     P8w = mat.T8w*link(8).P;
     patch('faces',link(8).faces,'vertices',P8w(1:3,:)','facecolor',0.95*[1 1 1],'edgecolor','none','facealpha',0.6);
-
     % tool
     P9w = mat.T9w*link(9).P;
     patch('faces',link(9).faces,'vertices',P9w(1:3,:)','facecolor',0.99*[1 1 1],'edgecolor','none','facealpha',0.6);
 
-    light
+    light('Position',[-10 -10 0])
     drawnow
 
-    % grab immagine fotogramma
     IM = getframe(hf);
     writeVideo(writerObj,IM.cdata);
 end
 
-% chiusura/salvataggio video
 writerObj.close
-% plot3(mat.Ttw(1,4),mat.Ttw(2,4),mat.Ttw(3,4),'o') % TARGET
