@@ -25,24 +25,24 @@ load('DaVinci_mod/DaVinci_mod.mat')
 % Modello del robot
 dati.name = 'DaVinci';
 
-% posizione base robot rispetto a world (disegno)
-dati.T0w = transE(0,0,0,0,0,0);
+% posizione base robot rispetto a world
+dati.T0w = transE(550,700,0,0,0,-90);
+% posizione lettino rispetto a world
+dati.TLw = dati.T0w*transE(900,500,650,180,0,0);
 % posizione/orientazione tool rispetto flangia robot
 dati.Ttn = transP(0,0,dati.Ltool);
 
+
 %% Posizionamento braccio (primi 4 giunti)
-q = [600 50 -30 250];
+q = [600 50 -30 230];
 
 % Punti per linee modello
-% punti 1, 2, 3 descritti rispetto alla terna 1
-dati.P1 = [[0;0;-dati.di(1)-q(1);1] [0;0;0;1] [dati.ai(1);0;0;1]]; 
 % [[origine della terna 0 vista da 1] [origine terna 1 vista da 1] [estremo asse x terna 1]]
-% punti 4,5,6 descritti rispetto alla terna 2
-dati.P2 = [[0;0;0;1] [dati.ai(2);0;0;1]];
+dati.P1 = [[0;0;-dati.di(1)-q(1);1] [0;0;0;1] [dati.ai(2);0;0;1]]; 
 % [[origine della terna 2 vista da 2] [punto 5 visto da 2]]
-% punti 6, 7, 8 descritti rispetto alla terna 3
-dati.P3 = [[0;0;0;1] [dati.ai(3);0;0;1] [dati.ai(3);0;dati.di(4);1]];
+dati.P2 = [[0;0;0;1] [dati.ai(3);0;0;1]];
 % [[origine terna 3 vista da 3] [punto 7 visto da 3] [origine terna 4 visto da 3]]
+dati.P3 = [[0;0;0;1] [dati.ai(4);0;0;1] [dati.ai(4);0;dati.di(4);1]];
 % origine terne 5 e 6
 dati.P5 = [0;0;0;1];
 % origine terna RCM
@@ -57,14 +57,17 @@ dati.P9 = [0;0;0;1];
 dati.Pt = [0;0;0;1];
 
 %% Cinematica inversa di posizione
-% Punto target iniziale
-P1w = [1200 300 600 1]';
+% Punto target iniziale rispetto a world 
+P1t = [2200 400 465 1]';
+P1tw = [P1t(1)+dati.T0w(1,4) P1t(2)+dati.T0w(2,4) P1t(3)+dati.T0w(3,4) 1]'; % rispetto a 0
 % Punto target finale
-P2w = [1100 0 500 1]';
+P2t = [0 0 0 1]';
+P2tw = [P2t(1)+dati.T0w(1,4) P2t(2)+dati.T0w(2,4) P2t(3)+dati.T0w(3,4) 1]'; % rispetto a 0
+
 theta = q; % corrispondono a q1, q2, q3 e q4 che rappresentano i giunti passivi
 
-q1 = invkinDaVinci(theta,P1w,dati);
-q2 = invkinDaVinci(theta,P2w,dati);
+q1 = invkinDaVinci(theta,P1tw,dati);
+q2 = invkinDaVinci(theta,P2tw,dati);
 
 q1 = [theta q1];
 q2 = [theta q2];
@@ -83,8 +86,6 @@ tau = t/T;
 sigma = 3*tau.^2 - 2*tau.^3;
 sigmap = 6*tau - 6*tau.^2;
 sigmapp = 6 - 12*tau;
-
-[tau' sigma' sigmap' sigmapp']
 
 % grafico sigma(tau) e derivate
 figure(2)
@@ -157,16 +158,16 @@ hf.Color = 'w';
 
 % assi
 axis equal
-view(30,20)
+view(-30,10)
 grid on
 rotate3d on
 xlabel 'x[mm]'
 ylabel 'y[mm]'
 zlabel 'z[mm]'
 
-xlim([-1000 2300])
-ylim([-1500 1700])
-zlim([-100 2300])
+% xlim([-1000 2300])
+% ylim([-1500 1700])
+% zlim([-100 2300])
 
 m = kindirDaVinci(Q(end,:),dati); % terna finale 
 %% simulazione
@@ -182,8 +183,7 @@ hf.OuterPosition = hf.Position;
 
 % figure(hf)
 for nf = 1:N
-    mi = kindirDaVinci(Q(1,:),dati);    % inizio
-    mf = kindirDaVinci(Q(end,:),dati); % fine 
+
     % calcolo matrici di trasformazione
     q = Q(nf,:);
     mat = kindirDaVinci(q,dati);
@@ -207,8 +207,6 @@ for nf = 1:N
     disframe(mat.Ttw,L,'.') % terna tool
     disframe(mat.TRCMw,L) % terna RCM
 
-    disframe(mi.Ttw,L,'o') % terna iniziale
-    disframe(mf.Ttw,L,'o') % terna finale
 
     % linee modello
     line(mat.Pw(1,:),mat.Pw(2,:),mat.Pw(3,:),'linestyle','--','color','b','linewidth',1);
@@ -221,7 +219,7 @@ for nf = 1:N
     patch('faces',base.faces,'vertices',Pbw(1:3,:)','facecolor',0.95*[0 1 1],'edgecolor','none','facealpha',0.6);
 
     % lettino 
-    PLw = dati.T0w*transE(900,500,650,180,0,0)*link_couch(6).P;
+    PLw = dati.TLw*link_couch(6).P;
     patch('faces',link_couch(6).faces,'vertices',PLw(1:3,:)','facecolor',0.1*[1 1 1],'edgecolor','none','facealpha',0.6);
 
     % membri passivi
